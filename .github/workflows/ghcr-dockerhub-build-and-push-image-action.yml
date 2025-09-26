@@ -16,7 +16,7 @@ jobs:
 
     env:
       IMAGE_NAME: netskey-test-doc
-      IMAGE_TAG: latestv1.0
+      IMAGE_TAG: latestv1
       GHCR_REGISTRY: ghcr.io
       DOCKERHUB_REGISTRY: docker.io
       MULTI_ARCH: false     # 🔧 Set to true to enable multi-arch builds
