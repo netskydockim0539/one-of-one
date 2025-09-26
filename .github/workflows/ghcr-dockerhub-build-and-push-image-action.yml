@@ -22,7 +22,7 @@ jobs:
       MULTI_ARCH: false     # 🔧 Set to true to enable multi-arch builds
       USE_ALT_GHCR: false   # 🔧 Set to true to push to another GHCR account/org
       ALT_GHCR_NAMESPACE: otheruser # 🔧 Replace with target account/org
-      USE_DOCKERHUB: true   # 🔧 Set to false to skip Docker Hub login/push
+      USE_DOCKERHUB: false   # 🔧 Set to false to skip Docker Hub login/push
       USE_GHCR: true        # 🔧 Set to false to skip GHCR login/push
 
     steps:
