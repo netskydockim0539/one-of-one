@@ -10,18 +10,18 @@
         "desktop": false
     },
     "workers": {
-        "doDailySet": true,
-        "doMorePromotions": true,
-        "doPunchCards": true,
+        "doDailySet": false,
+        "doMorePromotions": false,
+        "doPunchCards": false,
         "doDesktopSearch": true,
         "doMobileSearch": true,
-        "doDailyCheckIn": true,
-        "doReadToEarn": true
+        "doDailyCheckIn": false,
+        "doReadToEarn": false
     },
     "searchOnBingLocalQueries": false,
     "globalTimeout": "30s",
     "searchSettings": {
-        "useGeoLocaleQueries": false,
+        "useGeoLocaleQueries": true,
         "scrollRandomResults": true,
         "clickRandomResults": true,
         "searchDelay": {
@@ -45,7 +45,7 @@
         "url": "discord://1249221380491186276/6d2llfGXypQ7hsCBzaiZq4rX7LirwK98X6vRrewv8_NyQ9ypujss4Tj0ysCgJVzXpSH1"
     },
     "conclusionWebhook": {
-        "enabled": false,
-        "url": ""
+        "enabled": true,
+        "url": "discord://1249221380491186276/6d2llfGXypQ7hsCBzaiZq4rX7LirwK98X6vRrewv8_NyQ9ypujss4Tj0ysCgJVzXpSH1"
     }
 }
