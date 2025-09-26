@@ -19,9 +19,11 @@ jobs:
       IMAGE_TAG: latestv1.0
       GHCR_REGISTRY: ghcr.io
       DOCKERHUB_REGISTRY: docker.io
-      MULTI_ARCH: false  # 🔧 Set to true to enable multi-arch builds
-      USE_ALT_GHCR: false # 🔧 Set to true to push to another GHCR account/org
+      MULTI_ARCH: false     # 🔧 Set to true to enable multi-arch builds
+      USE_ALT_GHCR: false   # 🔧 Set to true to push to another GHCR account/org
       ALT_GHCR_NAMESPACE: otheruser # 🔧 Replace with target account/org
+      USE_DOCKERHUB: true   # 🔧 Set to false to skip Docker Hub login/push
+      USE_GHCR: true        # 🔧 Set to false to skip GHCR login/push
 
     steps:
       - name: Checkout repository
@@ -32,7 +34,7 @@ jobs:
 
       # Default GHCR login (repo owner)
       - name: Log in to GHCR (default)
-        if: env.USE_ALT_GHCR == 'false'
+        if: env.USE_GHCR == 'true' && env.USE_ALT_GHCR == 'false'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.GHCR_REGISTRY }}
@@ -41,14 +43,16 @@ jobs:
 
       # Alternate GHCR login (other account/org)
       - name: Log in to GHCR (other account)
-        if: env.USE_ALT_GHCR == 'true'
+        if: env.USE_GHCR == 'true' && env.USE_ALT_GHCR == 'true'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.GHCR_REGISTRY }}
           username: ${{ env.ALT_GHCR_NAMESPACE }}
           password: ${{ secrets.GHCR_PAT }} # PAT from other account/org
 
+      # Docker Hub login (optional)
       - name: Log in to Docker Hub
+        if: env.USE_DOCKERHUB == 'true'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -57,26 +61,48 @@ jobs:
       - name: Build and Push (Single Arch)
         if: env.MULTI_ARCH == 'false'
         run: |
-          if [ "${{ env.USE_ALT_GHCR }}" = "true" ]; then
-            GHCR_IMAGE=${{ env.GHCR_REGISTRY }}/${{ env.ALT_GHCR_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-          else
-            GHCR_IMAGE=${{ env.GHCR_REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          TAGS=()
+          if [ "${{ env.USE_GHCR }}" = "true" ]; then
+            if [ "${{ env.USE_ALT_GHCR }}" = "true" ]; then
+              GHCR_IMAGE=${{ env.GHCR_REGISTRY }}/${{ env.ALT_GHCR_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            else
+              GHCR_IMAGE=${{ env.GHCR_REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            fi
+            TAGS+=("-t $GHCR_IMAGE")
           fi
-          DOCKERHUB_IMAGE=${{ env.DOCKERHUB_REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-          docker build -t $GHCR_IMAGE -t $DOCKERHUB_IMAGE .
-          docker push $GHCR_IMAGE
-          docker push $DOCKERHUB_IMAGE
+
+          if [ "${{ env.USE_DOCKERHUB }}" = "true" ]; then
+            DOCKERHUB_IMAGE=${{ env.DOCKERHUB_REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            TAGS+=("-t $DOCKERHUB_IMAGE")
+          fi
+
+          docker build "${TAGS[@]}" .
+
+          if [ "${{ env.USE_GHCR }}" = "true" ]; then
+            docker push $GHCR_IMAGE
+          fi
+          if [ "${{ env.USE_DOCKERHUB }}" = "true" ]; then
+            docker push $DOCKERHUB_IMAGE
+          fi
 
       - name: Build and Push (Multi Arch)
         if: env.MULTI_ARCH == 'true'
         run: |
-          if [ "${{ env.USE_ALT_GHCR }}" = "true" ]; then
-            GHCR_IMAGE=${{ env.GHCR_REGISTRY }}/${{ env.ALT_GHCR_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-          else
-            GHCR_IMAGE=${{ env.GHCR_REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          TAGS=()
+          if [ "${{ env.USE_GHCR }}" = "true" ]; then
+            if [ "${{ env.USE_ALT_GHCR }}" = "true" ]; then
+              GHCR_IMAGE=${{ env.GHCR_REGISTRY }}/${{ env.ALT_GHCR_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            else
+              GHCR_IMAGE=${{ env.GHCR_REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            fi
+            TAGS+=(--tag $GHCR_IMAGE)
           fi
-          DOCKERHUB_IMAGE=${{ env.DOCKERHUB_REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+
+          if [ "${{ env.USE_DOCKERHUB }}" = "true" ]; then
+            DOCKERHUB_IMAGE=${{ env.DOCKERHUB_REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            TAGS+=(--tag $DOCKERHUB_IMAGE)
+          fi
+
           docker buildx build --platform linux/amd64,linux/arm64 \
-            --tag $GHCR_IMAGE \
-            --tag $DOCKERHUB_IMAGE \
+            "${TAGS[@]}" \
             --push .
