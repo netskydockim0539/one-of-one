@@ -61,48 +61,51 @@ jobs:
       - name: Build and Push (Single Arch)
         if: env.MULTI_ARCH == 'false'
         run: |
-          TAGS=()
+          # Build tag list
+          TAG_ARGS=""
           if [ "${{ env.USE_GHCR }}" = "true" ]; then
             if [ "${{ env.USE_ALT_GHCR }}" = "true" ]; then
-              GHCR_IMAGE=${{ env.GHCR_REGISTRY }}/${{ env.ALT_GHCR_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+              GHCR_IMAGE="${{ env.GHCR_REGISTRY }}/${{ env.ALT_GHCR_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
             else
-              GHCR_IMAGE=${{ env.GHCR_REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+              GHCR_IMAGE="${{ env.GHCR_REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
             fi
-            TAGS+=("-t $GHCR_IMAGE")
+            TAG_ARGS="$TAG_ARGS -t $GHCR_IMAGE"
           fi
 
           if [ "${{ env.USE_DOCKERHUB }}" = "true" ]; then
-            DOCKERHUB_IMAGE=${{ env.DOCKERHUB_REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-            TAGS+=("-t $DOCKERHUB_IMAGE")
+            DOCKERHUB_IMAGE="${{ env.DOCKERHUB_REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
+            TAG_ARGS="$TAG_ARGS -t $DOCKERHUB_IMAGE"
           fi
 
-          docker build "${TAGS[@]}" .
+          # Build
+          docker build $TAG_ARGS .
 
+          # Push
           if [ "${{ env.USE_GHCR }}" = "true" ]; then
-            docker push $GHCR_IMAGE
+            docker push "$GHCR_IMAGE"
           fi
           if [ "${{ env.USE_DOCKERHUB }}" = "true" ]; then
-            docker push $DOCKERHUB_IMAGE
+            docker push "$DOCKERHUB_IMAGE"
           fi
 
       - name: Build and Push (Multi Arch)
         if: env.MULTI_ARCH == 'true'
         run: |
-          TAGS=()
+          TAG_ARGS=""
           if [ "${{ env.USE_GHCR }}" = "true" ]; then
             if [ "${{ env.USE_ALT_GHCR }}" = "true" ]; then
-              GHCR_IMAGE=${{ env.GHCR_REGISTRY }}/${{ env.ALT_GHCR_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+              GHCR_IMAGE="${{ env.GHCR_REGISTRY }}/${{ env.ALT_GHCR_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
             else
-              GHCR_IMAGE=${{ env.GHCR_REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+              GHCR_IMAGE="${{ env.GHCR_REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
             fi
-            TAGS+=(--tag $GHCR_IMAGE)
+            TAG_ARGS="$TAG_ARGS --tag $GHCR_IMAGE"
           fi
 
           if [ "${{ env.USE_DOCKERHUB }}" = "true" ]; then
-            DOCKERHUB_IMAGE=${{ env.DOCKERHUB_REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-            TAGS+=(--tag $DOCKERHUB_IMAGE)
+            DOCKERHUB_IMAGE="${{ env.DOCKERHUB_REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
+            TAG_ARGS="$TAG_ARGS --tag $DOCKERHUB_IMAGE"
           fi
 
           docker buildx build --platform linux/amd64,linux/arm64 \
-            "${TAGS[@]}" \
+            $TAG_ARGS \
             --push .
