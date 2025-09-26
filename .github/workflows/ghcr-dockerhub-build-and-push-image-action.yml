@@ -2,7 +2,6 @@ name: Build and Push Docker Image to GHCR and Docker Hub
 
 on:
   push:
-    branches:
   workflow_dispatch:   # 👈 allows manual runs from the Actions tab
 
 jobs:
