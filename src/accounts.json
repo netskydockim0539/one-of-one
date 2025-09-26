@@ -9,16 +9,5 @@
             "username": "",
             "password": ""
         }
-    },
-    {
-        "email": "email_2",
-        "password": "password_2",
-        "proxy": {
-            "proxyAxios": true,
-            "url": "",
-            "port": 0,
-            "username": "",
-            "password": ""
-        }
     }
 ]
