@@ -27,13 +27,13 @@ COPY . .
 RUN npm run build
 
 ###############################################################################
-# Stage 2: Runtime (Playwright image)
+# Stage 2: Runtime (Playwright image, cron installed but not auto-run)
 ###############################################################################
 FROM mcr.microsoft.com/playwright:v1.52.0-jammy
 
 WORKDIR /usr/src/microsoft-rewards-script
 
-# Install cron, gettext-base (for envsubst), tzdata noninteractively
+# Install cron + tzdata (cron is available, but won’t be started automatically)
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
          cron gettext-base tzdata \
@@ -55,14 +55,13 @@ RUN if [ -f package-lock.json ]; then \
 # Copy built application
 COPY --from=builder /usr/src/microsoft-rewards-script/dist ./dist
 
-# Copy runtime scripts with proper permissions from the start
+# Copy runtime scripts with proper permissions
 COPY --chmod=755 src/run_daily.sh ./src/run_daily.sh
-COPY --chmod=644 src/crontab.template /etc/cron.d/microsoft-rewards-cron.template
 COPY --chmod=755 entrypoint.sh /usr/local/bin/entrypoint.sh
 
 # Default TZ (overridden by user via environment)
 ENV TZ=UTC
 
-# Entrypoint handles TZ, initial run toggle, cron templating & launch
+# Entrypoint just runs your script (no cron setup)
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["sh", "-c", "echo 'Container started; cron is running.'"]
+CMD ["sh", "-c", "echo 'Container started; run_daily.sh executed manually.'"]
