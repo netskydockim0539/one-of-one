@@ -4,10 +4,10 @@
         "password": "password_1",
         "proxy": {
             "proxyAxios": true,
-            "url": "",
-            "port": 0,
-            "username": "",
-            "password": ""
+            "url": "54.215.139.105",
+            "port": 3128,
+            "username": "tvkk",
+            "password": "13579"
         }
     }
 ]
