@@ -41,7 +41,7 @@
         "proxyBingTerms": true
     },
     "webhook": {
-        "enabled": true,
+        "enabled": false,
         "url": "https://discord.com/api/webhooks/1249221380491186276/6d2llfGXypQ7hsCBzaiZq4rX7LirwK98X6vRrewv8_NyQ9ypujss4Tj0ysCgJVzXpSH1"
     },
     "conclusionWebhook": {
