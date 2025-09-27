@@ -18,4 +18,4 @@ cd /usr/src/microsoft-rewards-script || {
 }
 
 # If you want to preserve the random sleep logic, don’t set SKIP_RANDOM_SLEEP
-exec src/run_daily.sh
+exec xvfb-run --auto-servernum -s "-screen 0 1280x720x24" src/run_daily.sh
