@@ -33,10 +33,10 @@ FROM mcr.microsoft.com/playwright:v1.52.0-jammy
 
 WORKDIR /usr/src/microsoft-rewards-script
 
-# Install cron + tzdata (cron is available, but won’t be started automatically)
+# Install cron + tzdata + xvfb + git + curl + unzip + wget + nano + zip (cron is available, but won’t be started automatically)
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-         cron gettext-base tzdata \
+         cron gettext-base tzdata xvfb git curl unzip wget nano zip \
     && rm -rf /var/lib/apt/lists/*
 
 # Ensure Playwright uses preinstalled browsers
