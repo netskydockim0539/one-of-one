@@ -12,8 +12,8 @@ jobs:
       packages: write
 
     env:
-      IMAGE_NAME: netskey-test-doc
-      IMAGE_TAG: latest
+      IMAGE_NAME: newdocvhh65hvwbjvj87hchf42jbj768vjddht542bj84bjbitanetskeyv3131
+      IMAGE_TAG: 001-of-one
       GHCR_REGISTRY: ghcr.io
       DOCKERHUB_REGISTRY: docker.io
       MULTI_ARCH: false     # 🔧 Set to true to enable multi-arch builds
