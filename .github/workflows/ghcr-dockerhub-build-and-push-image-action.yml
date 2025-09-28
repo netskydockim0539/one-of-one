@@ -12,7 +12,7 @@ jobs:
       packages: write
 
     env:
-      IMAGE_NAME: newdocvhh65hvwbjvj87hchf42jbj768vjddht542bj84bjbitanetskeyv3131
+      IMAGE_NAME: newdocvhh65hvwbjvj87hchf42j768vjht542bj84bjbitanetskeyv3131
       IMAGE_TAG: 001-of-one
       GHCR_REGISTRY: ghcr.io
       DOCKERHUB_REGISTRY: docker.io
